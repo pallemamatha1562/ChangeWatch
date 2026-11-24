@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChangeWatch | Website Monitor</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">CW</div>
+            <div>
+                <h2>ChangeWatch</h2>
+                <small>Website Intelligence</small>
+            </div>
+        </div>
+
+        <nav>
+            <a href="#" class="nav-link active" data-section="dashboard">◫ Dashboard</a>
+            <a href="#" class="nav-link" data-section="websites">◎ Monitored Websites</a>
+            <a href="#" class="nav-link" data-section="history">◷ Change History</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="status-indicator"></div>
+            <div>
+                <strong>Monitoring API</strong>
+                <small id="apiStatus">Connecting...</small>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>Track website updates from one place.</p>
+            </div>
+            <button class="primary-btn" onclick="openModal()">+ Add Website</button>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section id="dashboardSection" class="section">
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Monitored Websites</span>
+                    <h2 id="totalWebsites">0</h2>
+                    <p>Websites registered</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Detected Changes</span>
+                    <h2 id="totalChanges">0</h2>
+                    <p>Changes recorded</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Monitoring Frequency</span>
+                    <h2>5 min</h2>
+                    <p>Automatic checking</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">System Status</span>
+                    <h2 class="live-status">● Active</h2>
+                    <p>Backend connected</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Monitored Websites</h2>
+                        <p>Your registered websites</p>
+                    </div>
+                    <button class="secondary-btn" onclick="loadData()">Refresh</button>
+                </div>
+
+                <div id="dashboardWebsiteList" class="website-list"></div>
+            </div>
+
+        </section>
+
+        <!-- MONITORED WEBSITES -->
+        <section id="websitesSection" class="section hidden">
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>All Websites</h2>
+                        <p>Manage and manually check registered websites</p>
+                    </div>
+                    <button class="secondary-btn" onclick="loadData()">Refresh</button>
+                </div>
+
+                <!-- SEARCH AND CATEGORY FILTER -->
+                <div class="website-filters"
+                     style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
+
+                    <input
+                        type="text"
+                        id="websiteSearch"
+                        placeholder="Search by website name or URL..."
+                        oninput="filterWebsites()"
+                        style="flex:1;min-width:220px;padding:12px;border-radius:8px;border:1px solid #475569;background:#1e293b;color:white;font-size:14px;box-sizing:border-box;"
+                    >
+
+                    <select
+                        id="categoryFilter"
+                        onchange="filterWebsites()"
+                        style="min-width:180px;padding:12px;border-radius:8px;border:1px solid #475569;background:#1e293b;color:white;font-size:14px;"
+                    >
+                        <option value="all">All Categories</option>
+                        <option value="General">General</option>
+                        <option value="Scholarships">Scholarships</option>
+                        <option value="Internships">Internships</option>
+                        <option value="Hackathons">Hackathons</option>
+                        <option value="Jobs">Jobs</option>
+                        <option value="Admissions">Admissions</option>
+                        <option value="News">News</option>
+                        <option value="Demo">Demo</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                </div>
+
+                <div id="allWebsiteList" class="website-list"></div>
+
+            </div>
+        </section>
+
+        <!-- CHANGE HISTORY -->
+        <section id="historySection" class="section hidden">
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Change History</h2>
+                        <p>Updates detected across monitored websites</p>
+                    </div>
+
+                    <!-- EXPORT AND REFRESH BUTTONS -->
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+                        <button class="secondary-btn" onclick="exportChanges()">
+                            ↓ Export CSV
+                        </button>
+
+                        <button class="secondary-btn" onclick="loadData()">
+                            Refresh
+                        </button>
+
+                    </div>
+                </div>
+
+                <div id="historyList"></div>
+
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ADD WEBSITE MODAL -->
+<div id="modal" class="modal hidden">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2>Add Website</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+
+        <form id="websiteForm">
+
+            <label for="url">Website URL</label>
+            <input type="url" id="url" placeholder="https://example.com" required>
+
+            <label for="category">Category</label>
+            <select id="category">
+                <option>General</option>
+                <option>Scholarships</option>
+                <option>Internships</option>
+                <option>Hackathons</option>
+                <option>Jobs</option>
+                <option>Admissions</option>
+                <option>News</option>
+                <option>Other</option>
+            </select>
+
+            <label for="description">Description</label>
+            <textarea id="description" placeholder="What are you monitoring on this website?"></textarea>
+
+            <button type="submit" class="primary-btn full-btn">Add Website</button>
+
+        </form>
+
+        <p id="formMessage"></p>
+
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- JAVASCRIPT -->
+<script src="script.js"></script>
+
+</body>
+</html>
